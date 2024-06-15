@@ -51,7 +51,7 @@ async function fileverify(filelist, formdata) {
 //单个文件是否存在
 async function listjy(e) {
     try {
-        await client.head(e)
+        const objtest = await client.head(e)
         return { name: e, exist: true }
     } catch (error) {
         if (error.code === 'NoSuchKey') {

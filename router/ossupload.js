@@ -7,7 +7,8 @@ const router = express.Router();
 const verifydata = require('../utils/ossupload/verify')
 //导入oss操作函数
 const renameObject = require('../utils/ossupload/renameObject')
-
+//导入数据库操作函数
+const databashup = require('../utils/ossupload/databashup')
 
 
 //视频、表单数据接收
@@ -24,7 +25,8 @@ router.post('/fullupload', async (req, res) => {
         })
         return
     }
-    //进行oss文件操作
+
+    //进行oss文件操作(并返回videoid)
     const iscopy = await renameObject(filelist, formdata)
     //要是oss操作失败了就return出去，并返回校验结果
     if (!iscopy.isfull) {
@@ -35,7 +37,9 @@ router.post('/fullupload', async (req, res) => {
         })
         return
     }
-
+    //数据存储到数据库
+    const isdb = await databashup(iscopy.videoid,formdata)
+    console.log(isdb);
 
 
     res.status(200).json({

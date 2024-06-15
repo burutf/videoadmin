@@ -6,39 +6,38 @@ const path = require('path');
 const client = require('../../config/ossconfig');
 
 
-//进行oss资源操作
+//用户变量，后面做账号功能用
 const prefix = 'video/'
-const userid = '10001/' //用户id
 
 //进行oss文件操作
 async function renameObject(filelist, formdata) {
+    //先固定的，后面要改成随机的
+    const videoid = 'TFSqERBfSAxc'
 
-    const alllist = disposal(filelist, formdata)
+    const alllist = disposal(filelist, formdata, videoid)
     const reslist = await Promise.all(alllist)
-    //获取文件列表
-    const ids = reslist[0].videoid
-    list(prefix+userid+ids)
 
     const isis = reslist.every(e => {
         return e.status === 'success'
     })
     return {
         isfull: isis,
+        videoid,
         data: reslist
     }
 }
 //整理promise并发数组
-function disposal(filelist, formdata) {
+function disposal(filelist, formdata, videoid) {
     //拿到整理好的，添加了videoid和后缀的数组
-    const arrlistvideo = disarrlistvideo(filelist, formdata)
+    const arrlistvideo = disarrlistvideo(filelist, formdata, videoid)
     //创建promise数组
     const promiselist = arrlistvideo.map(onepromise)
     return promiselist
 }
 async function onepromise(e) {
     let rres;
-    const videopath = prefix + userid + e.videoid + '/' + 'video-' + e.serial + e.suffix
-    const coverpath = prefix + userid + e.videoid + '/' + 'cover' + e.suffix
+    const videopath = prefix + process.env.USER_ID + '/' + e.videoid + '/' + 'video-' + e.serial + e.suffix
+    const coverpath = prefix + process.env.USER_ID + '/' + e.videoid + '/' + 'cover' + e.suffix
     try {
         if (e.serial) {
             rres = await client.copy(videopath, e.urlname,)
@@ -70,8 +69,7 @@ async function onepromise(e) {
 
 
 //数组格式整理
-function disarrlistvideo(filelist, formdata) {
-    const videoid = 'TF' + nanoid.nanoid(10)
+function disarrlistvideo(filelist, formdata, videoid) {
     //加上后缀属性和uuid
     //这是视频
     const arrlistvideo = filelist.map(e => {
@@ -89,14 +87,6 @@ function disarrlistvideo(filelist, formdata) {
         videoid
     })
     return arrlistvideo
-}
-//获取列表
-async function list(prefix) {
-    const result = await client.listV2({
-        // 列举文件名中包含前缀`prefix`的文件。
-        prefix: prefix
-    });
-    console.log(result);
 }
 
 
