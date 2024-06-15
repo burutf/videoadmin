@@ -27,7 +27,7 @@ router.post('/fullupload', async (req, res) => {
     }
 
     //进行oss文件操作(并返回videoid)
-    const iscopy = await renameObject(filelist, formdata)
+    const iscopy = await renameObject(filelist, formdata);
     //要是oss操作失败了就return出去，并返回校验结果
     if (!iscopy.isfull) {
         res.status(402).json({
@@ -39,7 +39,7 @@ router.post('/fullupload', async (req, res) => {
     }
     //数据存储到数据库
     const isdb = await databashup(iscopy.videoid,formdata)
-    console.log(isdb);
+    console.log(isdb)
 
 
     res.status(200).json({
