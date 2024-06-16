@@ -7,9 +7,13 @@ const ossupload = require('./ossupload')
 //服务器时间
 const gettime = require('./time')
 
+//登陆（jwt token）
+const login = require('./login')
+
 module.exports = {
     stsoss,
     extras,
     ossupload,
-    gettime
+    gettime,
+    login
 }

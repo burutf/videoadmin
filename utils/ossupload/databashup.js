@@ -2,7 +2,6 @@
 const { insertmongo } = require('../mongoclient')
 //导入获取列表的函数
 const getlistoss = require('../getlistoss')
-const e = require('express')
 
 
 //用户变量，后面做账号功能用
@@ -10,16 +9,23 @@ const prefix = 'video/'
 
 //数据存储到数据库
 async function upmongodb(videoid, formdata) {
+    try {
+        //获取视频列表
+        const listoss = await getlistoss(prefix + process.env.USER_ID + '/' + videoid + '/')
+        
+        //进行数组整理，添加到数据库
+        const listdisposal = disposal(listoss, formdata)
 
-    //获取视频列表
-    const listoss = await getlistoss(prefix + process.env.USER_ID + '/' + videoid + '/')
-
-    //进行数组整理，添加到数据库
-    const listdisposal = disposal(listoss, formdata)
-    
-    //数据库进行新增
-    const isis = await insertmongo(listdisposal)
-    return isis.acknowledged
+        //数据库进行新增
+        const isis = await insertmongo(listdisposal)
+        return isis.acknowledged
+    } catch (error) {
+        throw {
+            code:403,
+            message:error.message,
+            data:error
+        }
+    }
 }
 
 function disposal(listoss, formdata) {

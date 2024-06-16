@@ -20,11 +20,24 @@ async function renameObject(filelist, formdata) {
     const isis = reslist.every(e => {
         return e.status === 'success'
     })
-    return {
-        isfull: isis,
-        videoid,
-        data: reslist
+
+
+
+
+    if (isis) {
+        return videoid
+    } else {
+        throw ({
+            code: 402,
+            message: 'oss文件复制出错',
+            data: {
+                isfull: isis,
+                videoid,
+                data: reslist,
+            }
+        })
     }
+
 }
 //整理promise并发数组
 function disposal(filelist, formdata, videoid) {
@@ -40,7 +53,7 @@ async function onepromise(e) {
     const coverpath = prefix + process.env.USER_ID + '/' + e.videoid + '/' + 'cover' + e.suffix
     try {
         if (e.serial) {
-            rres = await client.copy(videopath, e.urlname,)
+            rres = await client.copy(videopath, e.urlname)
             return {
                 name: e.name,
                 status: 'success',
@@ -62,7 +75,7 @@ async function onepromise(e) {
         return {
             name: e.name,
             status: 'error',
-            errormessage: error
+            message: error.message
         }
     }
 }

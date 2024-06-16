@@ -4,22 +4,29 @@ const client = require('../../config/ossconfig')
 
 /////////////////////////////////////////////////////////
 //进行数据校验(返回false校验失败终止上传)
-async function verifydata (filelist, formdata) {
+async function verifydata(filelist, formdata) {
     //视频列表和封面校验
     const isexist = await fileverify(filelist, formdata)
     //表单校验
     const isform = formverify(formdata)
 
-    if (isexist.allexist && isform) return {
-        allisis: true,
-        isexist,
-        isform
+    if (isexist.allexist && isform) {
+        return {
+            allisis: true,
+            isexist,
+            isform
+        }
     }
-    return {
-        allisis: false,
-        isexist,
-        isform
+    //抛出错误信息
+    throw {
+        code:401,
+        message:'校验失败',
+        data: {
+            isexist,
+            isform
+        }
     }
+    
 }
 /////////////
 //提取名字列表
