@@ -2,7 +2,7 @@
 //引入路由
 const express = require('express');
 const router = express.Router();
-
+//视频类型列表
 router.get('/getclassifylist', (req, res) => {
     try {
         res.status(200).json({
@@ -51,6 +51,16 @@ router.get('/getclassifylist', (req, res) => {
         })
     }
 
+})
+
+//获取用户信息
+router.get('/getuserinfo',(req,res)=>{
+    const {username,isadmin,uuid} = req.userinfo
+    res.status(200).json({
+        code:200,
+        message:'ok',
+        username
+    })
 })
 
 

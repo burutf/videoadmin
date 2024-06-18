@@ -24,8 +24,8 @@ router.get('/sts', async (req, res) => {
             data: credentials
         })
     } catch (error) {
-        res.status(400).json({
-            code: 400,
+        res.status(500).json({
+            code: 500,
             message: "sts这个get接口出错了",
             data: error
         })

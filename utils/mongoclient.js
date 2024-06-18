@@ -28,11 +28,20 @@ async function findmongo(dbk,document,objs,projection) {
         const ress = await db.find(objs, {projection} ).toArray()
         //关闭数据库
         mongo.close()
+        if (ress.length===0) {
+            return Promise.reject({
+                code:400,
+                message:'未查到数据'
+            })
+        }
         return ress
     } catch (error) {
         //关闭数据库
         mongo.close()
-        throw new Error('连接数据库或查找发生了错误')
+        return Promise.reject({
+            code:403,
+            message:'连接数据库或查找语句错误'
+        })
     }
 }
 
