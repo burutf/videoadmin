@@ -53,13 +53,17 @@ router.get('/getclassifylist', (req, res) => {
 
 })
 
-//获取用户信息
+//获取用户信息(传参指定要获取的信息)
 router.get('/getuserinfo',(req,res)=>{
     const {username,isadmin,uuid} = req.userinfo
     res.status(200).json({
         code:200,
         message:'ok',
-        username
+        data:{
+            username,
+            isadmin,
+            uuid
+        }
     })
 })
 
