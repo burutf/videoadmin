@@ -6,22 +6,20 @@ const path = require('path');
 const client = require('../../config/ossconfig');
 
 
-//用户变量，后面做账号功能用
-const prefix = 'video/'
 
 //进行oss文件操作
-async function renameObject(filelist, formdata) {
-    //先固定的，后面要改成随机的
-    const videoid = 'TFSqERBfSAxc'
+async function renameObject(filelist, formdata, uuid) {
+    //随机视频id
+    const videoid = 'FX' + nanoid.nanoid(10)
+    //固定视频id
+    // const videoid = 'FXawfawdawa'
 
-    const alllist = disposal(filelist, formdata, videoid)
+    //传入视频id，和用户id
+    const alllist = disposal(filelist, formdata, videoid,uuid)
     const reslist = await Promise.all(alllist)
-
     const isis = reslist.every(e => {
         return e.status === 'success'
     })
-
-
 
 
     if (isis) {
@@ -34,26 +32,30 @@ async function renameObject(filelist, formdata) {
                 isfull: isis,
                 videoid,
                 data: reslist,
-            }
+            },
+            videoid
         })
     }
 
 }
 //整理promise并发数组
-function disposal(filelist, formdata, videoid) {
+function disposal(filelist, formdata, videoid,uuid) {
     //拿到整理好的，添加了videoid和后缀的数组
-    const arrlistvideo = disarrlistvideo(filelist, formdata, videoid)
+    const arrlistvideo = disarrlistvideo(filelist, formdata, videoid,uuid)
     //创建promise数组
     const promiselist = arrlistvideo.map(onepromise)
     return promiselist
 }
 async function onepromise(e) {
     let rres;
-    const videopath = prefix + process.env.USER_ID + '/' + e.videoid + '/' + 'video-' + e.serial + e.suffix
-    const coverpath = prefix + process.env.USER_ID + '/' + e.videoid + '/' + 'cover' + e.suffix
+    //准备复制到的视频的名字路径:视频前缀/用户id/视频id/vide-编号.mp4
+    const videopath = process.env.USER_PREFIX + e.uuid + '/' + e.videoid + '/' + 'video-' + e.serial + e.suffix
+    //准备复制到的封面的名字路径:视频前缀/用户id/视频id/cover.jpg
+    const coverpath = process.env.USER_PREFIX + e.uuid + '/' + e.videoid + '/' + 'cover' + e.suffix
     try {
+        //判断当前对象有没有编号，有编号就是视频，没有就是封面
         if (e.serial) {
-            rres = await client.copy(videopath, e.urlname)
+            const rres = await client.copy(videopath, e.urlname);
             return {
                 name: e.name,
                 status: 'success',
@@ -82,14 +84,15 @@ async function onepromise(e) {
 
 
 //数组格式整理
-function disarrlistvideo(filelist, formdata, videoid) {
+function disarrlistvideo(filelist, formdata, videoid,uuid) {
     //加上后缀属性和uuid
     //这是视频
     const arrlistvideo = filelist.map(e => {
         return {
             ...e,
             suffix: path.extname(e.urlname),
-            videoid
+            videoid,
+            uuid
         }
     })
     const { cover } = formdata
@@ -97,7 +100,8 @@ function disarrlistvideo(filelist, formdata, videoid) {
     arrlistvideo.push({
         ...cover,
         suffix: path.extname(cover.urlname),
-        videoid
+        videoid,
+        uuid
     })
     return arrlistvideo
 }

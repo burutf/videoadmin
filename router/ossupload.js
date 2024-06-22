@@ -8,32 +8,52 @@ const verifydata = require('../utils/ossupload/verify')
 const renameObject = require('../utils/ossupload/renameObject')
 //导入数据库操作函数
 const databashup = require('../utils/ossupload/databashup')
+//导入出现意外的错误时，执行的回退操作
+const delinbatches = require('../utils/delinbatches')
+//导入清除临时目录的函数
+
+
 
 //视频、表单数据接收
 router.post('/fullupload', async (req, res) => {
-    const { filelist, formdata } = req.body
-
+    //拿到用户所上传的视频列表和表单数据
+    const { filelist, formdata } = req.body;
+    //拿到当前登录的用户id
+    const { uuid } = req.userinfo;
     try {
         //进行数据校验
         const isverify = await verifydata(filelist, formdata);
 
         //进行oss文件操作(并返回videoid)
-        const iscopy = await renameObject(filelist, formdata);
+        const iscopy = await renameObject(filelist, formdata, uuid);
 
         //数据存储到数据库
-        const isdb = await databashup(iscopy,formdata)
+        const isdb = await databashup(iscopy, formdata, uuid)
 
         res.status(200).json({
             code: 200,
             message: 'ok',
-            videoid:iscopy
+            videoid: iscopy
         })
+        //完成后清除临时目录
+        try {
+            const pathname = process.env.USER_TEM + uuid + '/'
+            await delinbatches(pathname)
+        } catch (error) {}
+
     } catch (error) {
-        console.log(error);
         //错误处理，传回错误的操作
-        const {code,message,data} = error
-        res.status(error.code).json({code,message,data})
+        const { code, message, data, videoid } = error
+        res.status(error.code).json({ code, message, data, videoid })
+
+        try {
+            const pathname = process.env.USER_PREFIX + uuid + '/' + videoid + '/'
+            //执行回退
+            //传入要删除的名字路径
+            await delinbatches(pathname)
+        } catch (error) { }
     }
 })
+
 
 module.exports = router

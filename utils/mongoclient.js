@@ -2,12 +2,12 @@
 const mongo = require('../config/mongoconfig')
 
 //增
-async function insertmongo(objs) {
+async function insertmongo(objs,database,datatable) {
     try {
         //连接数据库
         await mongo.connect()
         //增
-        const db = mongo.db(process.env.MONGO_DB).collection('u'+process.env.USER_ID)
+        const db = mongo.db(database).collection(datatable)
         const ress = await db.insertOne(objs)
         //关闭数据库
         mongo.close()
@@ -15,7 +15,10 @@ async function insertmongo(objs) {
     } catch (error) {
         //关闭数据库
         mongo.close()
-        throw new Error('连接数据库或新增发生了错误')
+        return Promise.reject({
+            code:403,
+            message:'连接数据库或新增发生了错误'
+        })
     }
 }
 //查

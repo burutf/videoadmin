@@ -1,6 +1,7 @@
 //引入oss的配置
 const client = require('../../config/ossconfig')
-
+//引入oss操作函数(判断单个文件是否存在)
+const {listjy} = require('../osssysutile')
 
 /////////////////////////////////////////////////////////
 //进行数据校验(返回false校验失败终止上传)
@@ -55,21 +56,7 @@ async function fileverify(filelist, formdata) {
     })
     return { allexist: isis, data: islist }
 }
-//单个文件是否存在
-async function listjy(e) {
-    try {
-        const objtest = await client.head(e)
-        return { name: e, exist: true }
-    } catch (error) {
-        if (error.code === 'NoSuchKey') {
 
-            return { name: e, exist: false }
-        } else {
-
-            return { name: e, exist: error.message }
-        }
-    }
-}
 ////////////////////////////
 
 ///////////////////////////

@@ -1,34 +1,33 @@
 //导入mongodb新增函数
 const { insertmongo } = require('../mongoclient')
 //导入获取列表的函数
-const getlistoss = require('../getlistoss')
+const {getlistoss} = require('../osssysutile')
 
 
-//用户变量，后面做账号功能用
-const prefix = 'video/'
+
 
 //数据存储到数据库
-async function upmongodb(videoid, formdata) {
+async function upmongodb(videoid, formdata,uuid) {
     try {
-        //获取视频列表
-        const listoss = await getlistoss(prefix + process.env.USER_ID + '/' + videoid + '/')
-        
-        //进行数组整理，添加到数据库
-        const listdisposal = disposal(listoss, formdata)
+        //获取视频列表(传入uuid和视频id)
+        const listoss = await getlistoss(process.env.USER_PREFIX + uuid + '/' + videoid + '/')
 
-        //数据库进行新增
-        const isis = await insertmongo(listdisposal)
+        //进行数组整理，添加到数据库
+        const listdisposal = disposal(listoss, formdata,uuid)
+        //数据库进行新增(传入整理好要新增的数据，还有要存放的数据库和集合的名字)
+        const isis = await insertmongo(listdisposal,process.env.MONGO_DB_VIDEO,process.env.MONGO_TB_USERVIDEO);//错误在这里
         return isis.acknowledged
     } catch (error) {
-        throw {
-            code:403,
+        return Promise.reject ({
+            code:error.code,
             message:error.message,
-            data:error
-        }
+            data:error.data,
+            videoid
+        })
     }
 }
 
-function disposal(listoss, formdata) {
+function disposal(listoss, formdata,uuid) {
     const { title, desc, type, classify, status, soubdate } = formdata
     //封面,数组中第一个就是
     const cover = listoss[0]
@@ -41,7 +40,8 @@ function disposal(listoss, formdata) {
     return {
         title, desc, type, classify, status, soubdate,
         videolist,
-        cover
+        cover,
+        uuid
     }
 }
 
