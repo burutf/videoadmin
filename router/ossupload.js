@@ -9,8 +9,9 @@ const renameObject = require('../utils/ossupload/renameObject')
 //导入数据库操作函数
 const databashup = require('../utils/ossupload/databashup')
 //导入出现意外的错误时，执行的回退操作
-const delinbatches = require('../utils/delinbatches')
 //导入清除临时目录的函数
+const {delinbatches,deltem} = require('../utils/delinbatches')
+
 
 
 
@@ -38,7 +39,7 @@ router.post('/fullupload', async (req, res) => {
         //完成后清除临时目录
         try {
             const pathname = process.env.USER_TEM + uuid + '/'
-            await delinbatches(pathname)
+            await deltem(pathname)
         } catch (error) {}
 
     } catch (error) {
@@ -47,10 +48,9 @@ router.post('/fullupload', async (req, res) => {
         res.status(error.code).json({ code, message, data, videoid })
 
         try {
-            const pathname = process.env.USER_PREFIX + uuid + '/' + videoid + '/'
             //执行回退
-            //传入要删除的名字路径
-            await delinbatches(pathname)
+            //传入用户id和视频id，并也要删除数据里有关的这条数据
+            await delinbatches(uuid,videoid,true)
         } catch (error) { }
     }
 })

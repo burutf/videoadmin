@@ -10,6 +10,8 @@ const gettime = require('./time')
 const login = require('./login')
 //oss各种操作的路由
 const osssys = require('./osssys')
+//视频管理相关的路由
+const videosys = require('./videosys')
 
 module.exports = {
     stsoss,
@@ -17,5 +19,6 @@ module.exports = {
     ossupload,
     gettime,
     login,
-    osssys
+    osssys,
+    videosys
 }

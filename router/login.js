@@ -15,17 +15,20 @@ router.post('/login', async (req, res) => {
         const finddata = await findmongo('user', 'users', {
             username,
             password
-        },{
-            username:1,
-            uuid:1,
-            isadmin:1,
-            _id:0
+        }, {
+            projection: {
+                username: 1,
+                uuid: 1,
+                isadmin: 1,
+                _id: 0
+            }
         })
+        console.log(finddata);
         const token = jwttoken(finddata[0])
 
 
         res.status(200).json({
-            code:200,
+            code: 200,
             token
         })
 

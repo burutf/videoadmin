@@ -5,18 +5,19 @@ const client = require('../config/ossconfig');
 async function getlistoss(strname) {
     try {
         const reslist = await client.listV2({ prefix: strname })
-        if (reslist.objects.length === 0) {
-            return Promise.reject ({
-                code:400,
-                message:strname+'文件列表为空'
-            })
-        }
+        // if (reslist.objects.length === 0) {
+        //     return Promise.reject ({
+        //         code:400,
+        //         message:strname+'文件列表为空'
+        //     })
+        // }
         return reslist.objects
     } catch (error) {
         // throw new Error('获取oss文件列表错误:' + error.message)
         return Promise.reject( {
             code:500,
-            message:'获取文件列表出错'
+            message:'获取文件列表出错',
+            messerr:error.message
         })
     }
 }
@@ -52,7 +53,7 @@ async function delfile(FileName,ismulti) {
     } catch (error) {
         return Promise.reject({
             code: 500,
-            message: '删除文件时出现意外的错误'
+            message: '删除文件时出现意外的错误'+error.message,
         })
     }
 }
@@ -65,7 +66,7 @@ async function cancelupload(FileName, uploadId){
     } catch (error) {
         return Promise.reject({
             code: 500,
-            message: '取消分片上传时出现意外的错误'
+            message: '取消分片上传时出现意外的错误'+error.message,
         })
     }
 }

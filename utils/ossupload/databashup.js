@@ -13,9 +13,9 @@ async function upmongodb(videoid, formdata,uuid) {
         const listoss = await getlistoss(process.env.USER_PREFIX + uuid + '/' + videoid + '/')
 
         //进行数组整理，添加到数据库
-        const listdisposal = disposal(listoss, formdata,uuid)
+        const listdisposal = disposal(listoss, formdata,uuid,videoid)
         //数据库进行新增(传入整理好要新增的数据，还有要存放的数据库和集合的名字)
-        const isis = await insertmongo(listdisposal,process.env.MONGO_DB_VIDEO,process.env.MONGO_TB_USERVIDEO);//错误在这里
+        const isis = await insertmongo(listdisposal);
         return isis.acknowledged
     } catch (error) {
         return Promise.reject ({
@@ -27,7 +27,7 @@ async function upmongodb(videoid, formdata,uuid) {
     }
 }
 
-function disposal(listoss, formdata,uuid) {
+function disposal(listoss, formdata,uuid,videoid) {
     const { title, desc, type, classify, status, soubdate } = formdata
     //封面,数组中第一个就是
     const cover = listoss[0]
@@ -37,11 +37,16 @@ function disposal(listoss, formdata,uuid) {
     videolist.forEach((e, i) => {
         e.serial = i + 1
     });
+    //获取当前的时间
+    const date = new Date()
     return {
         title, desc, type, classify, status, soubdate,
         videolist,
+        videoid,
         cover,
-        uuid
+        uuid,
+        createddate:date.toISOString(),
+        lastupdate:date.toISOString()
     }
 }
 
