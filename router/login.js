@@ -12,7 +12,7 @@ const jwttoken = require('../config/jwtconfig')
 router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body
-        const finddata = await findmongo('user', 'users', {
+        const finddata = await findmongo({
             username,
             password
         }, {
@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
                 isadmin: 1,
                 _id: 0
             }
-        })
+        },'user', 'users')
         console.log(finddata);
         const token = jwttoken(finddata[0])
 

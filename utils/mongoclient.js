@@ -17,13 +17,13 @@ async function insertmongo(objs) {
         })
     }
 }
-//查
-async function findmongo(objs,options) {
+//查(默认连接的是存储着视频信息的集合)
+async function findmongo(objs,options,database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO) {
     try {
         //连接数据库
         await mongo.connect();
         //查
-        const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO)
+        const db = mongo.db(database).collection(datatable)
         const ress = await db.find(objs, options).toArray()
         if (ress.length===0) {
             return Promise.reject({
@@ -58,13 +58,13 @@ async function countdomongo (objs) {
 }
 
 //删除
-async function delmongo(query) {
+async function delmongo(queryobj) {
     try {
         //连接数据库
         await mongo.connect();
-        //查
+        //删
         const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO)
-        const ress = await db.deleteOne(query)
+        const ress = await db.deleteOne(queryobj)
         return ress
     } catch (error) {
         return Promise.reject({
@@ -74,9 +74,32 @@ async function delmongo(query) {
     }
 }
 
+//更改
+async function updatamongo(queryobj,setdata){
+    try {
+        //连接数据库
+        await mongo.connect();
+        //改
+        const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO)
+        const ress = await db.updateOne(queryobj,{
+            $currentDate:{
+                lastupdate:true
+            },
+            $set:setdata
+        })
+        return ress
+    } catch (error) {
+        return Promise.reject({
+            code:403,
+            message:'连接数据库或修改出现错误'+error.message,
+        })
+    }
+}
+
 module.exports = {
     insertmongo,
     findmongo,
     countdomongo,
-    delmongo
+    delmongo,
+    updatamongo
 }
