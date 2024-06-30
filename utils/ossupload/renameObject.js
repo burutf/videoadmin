@@ -8,12 +8,13 @@ const client = require('../../config/ossconfig');
 
 
 //进行oss文件操作
-async function renameObject(filelist, formdata, uuid) {
-    //随机视频id
-    const videoid = 'FX' + nanoid.nanoid(10)
+async function renameObject(filelist, formdata, uuid,videoid) {
+    //随机视频id,如果客户端没有传来videoid，则视为新增，随机一个id，有的话就不用了
+    if (!videoid) {
+        videoid = 'FX' + nanoid.nanoid(10)
+    }
     //固定视频id
     // const videoid = 'FXawfawdawa'
-
     //传入视频id，和用户id
     const alllist = disposal(filelist, formdata, videoid,uuid)
     const reslist = await Promise.all(alllist)
@@ -21,9 +22,8 @@ async function renameObject(filelist, formdata, uuid) {
         return e.status === 'success'
     })
 
-
     if (isis) {
-        return videoid
+        return {videoid,reslist}
     } else {
         throw ({
             code: 402,
@@ -47,7 +47,6 @@ function disposal(filelist, formdata, videoid,uuid) {
     return promiselist
 }
 async function onepromise(e) {
-    let rres;
     //准备复制到的视频的名字路径:视频前缀/用户id/视频id/vide-编号.mp4
     const videopath = process.env.USER_PREFIX + e.uuid + '/' + e.videoid + '/' + 'video-' + e.serial + e.suffix
     //准备复制到的封面的名字路径:视频前缀/用户id/视频id/cover.jpg
@@ -59,17 +58,21 @@ async function onepromise(e) {
             return {
                 name: e.name,
                 status: 'success',
-                newurlname: videopath,
+                urlname: videopath,
                 type: 'video',
-                videoid: e.videoid
+                videoid: e.videoid,
+                size:e.size,
+                serial:e.serial
             }
         } else {
-            rres = await client.copy(coverpath, e.urlname)
+            const rres = await client.copy(coverpath, e.urlname)
             return {
-                name: e.name,
+                name: 'cover'+e.suffix,
                 status: 'success',
-                newurlname: coverpath,
+                url:rres.res.requestUrls[0],
+                urlname: coverpath,
                 type: 'cover',
+                size:e.size,
                 videoid: e.videoid
             }
         }
