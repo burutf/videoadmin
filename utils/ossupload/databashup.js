@@ -13,6 +13,7 @@ async function upmongodb(obj, formdata, uuid, isupdata) {
         //获取视频列表(传入uuid和视频id)
         // const listoss = await getlistoss(process.env.USER_PREFIX + uuid + '/' + videoid + '/')
 
+
         //进行数组整理，添加到数据库
         const listdisposal = disposal(reslist, formdata, uuid, videoid)
         //如果是更改的话就执行更改操作
