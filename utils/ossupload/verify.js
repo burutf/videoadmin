@@ -6,6 +6,15 @@ const {listjy} = require('../osssysutile')
 /////////////////////////////////////////////////////////
 //进行数据校验(返回false校验失败终止上传)
 async function verifydata(filelist, formdata) {
+    if (filelist.length===0) {
+        throw {
+            code:401,
+            message:'filelist不能为空',
+        }
+    }
+
+
+
     //视频列表和封面校验
     const isexist = await fileverify(filelist, formdata)
     //表单校验
@@ -62,8 +71,8 @@ async function fileverify(filelist, formdata) {
 ///////////////////////////
 //表单校验
 function formverify(formdata) {
-    const { classify, covername, desc, name, soubdate, status, type } = formdata
-    if (classify.lenth === 0 || covername === '' || name === '' || status === '' || type === '') {
+    const { classify, cover, desc, title, soubdate, status, type } = formdata
+    if (classify.lenth === 0 || cover.urlname === '' || title === '' || status === '' || type === '') {
         return false
     } else {
         return true

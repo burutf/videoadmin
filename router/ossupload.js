@@ -22,10 +22,8 @@ router.post('/fullupload', async (req, res) => {
     const { filelist, formdata,videoid='',delvideolist=[] } = req.body;
     //拿到当前登录的用户id
     const { uuid } = req.userinfo;
+
     try {
-        
-
-
 
         //进行数据校验
         const isverify = await verifydata(filelist, formdata);

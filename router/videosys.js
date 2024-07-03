@@ -10,13 +10,13 @@ router.get('/getvideolist', async (req, res) => {
     //拿到用户信息
     const { isadmin, uuid } = req.userinfo
     //query拿到用户传来的配置信息（pramas是数字已经变成字符串了，需要处理一下）
-    const { page, pagesize } = req.query.options
+    const { page, pagesize,sortobj } = req.query.options
     try {
         const arrlist = await findmongo({
             uuid
         }, {
-            //根据最后一次修改降序排序
-            sort: { lastupdate: -1 },
+            //排序
+            sort: sortobj,
             //隐藏字段
             projection: { _id: 0 },
             //分页
