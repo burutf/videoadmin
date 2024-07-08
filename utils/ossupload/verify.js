@@ -13,7 +13,7 @@ async function verifydata(filelist, formdata) {
         }
     }
 
-
+//
 
     //视频列表和封面校验
     const isexist = await fileverify(filelist, formdata)

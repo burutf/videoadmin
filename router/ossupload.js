@@ -21,7 +21,7 @@ router.post('/fullupload', async (req, res) => {
     //拿到用户所上传的视频列表和表单数据
     const { filelist, formdata,videoid='',delvideolist=[] } = req.body;
     //拿到当前登录的用户id
-    const { uuid } = req.userinfo;
+    const { uuid,iat } = req.userinfo;
 
     try {
 
@@ -50,7 +50,7 @@ router.post('/fullupload', async (req, res) => {
         })
         //完成后清除临时目录
         try {
-            const pathname = process.env.USER_TEM + uuid + '/'
+            const pathname = process.env.USER_TEM + uuid + '/'+iat+'/'
             await deltem(pathname)
         } catch (error) {}
 
