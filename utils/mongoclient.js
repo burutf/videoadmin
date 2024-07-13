@@ -2,12 +2,12 @@
 const mongo = require('../config/mongoconfig')
 
 //增
-async function insertmongo(objs) {
+async function insertmongo(objs,database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO) {
     try {
         //连接数据库
         await mongo.connect()
         //增
-        const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO)
+        const db = mongo.db(database).collection(datatable)
         const ress = await db.insertOne(objs)
         return ress
     } catch (error) {
@@ -41,12 +41,12 @@ async function findmongo(objs,options,database=process.env.MONGO_DB_VIDEO,datata
 }
 
 //查符合条件的有几条
-async function countdomongo (objs) {
+async function countdomongo (objs,database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO) {
     try {
         //连接数据库
         await mongo.connect();
         //查
-        const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO);
+        const db = mongo.db(database).collection(datatable);
         const ress = await db.countDocuments(objs);
         return ress
     } catch (error) {
@@ -58,12 +58,12 @@ async function countdomongo (objs) {
 }
 
 //删除
-async function delmongo(queryobj) {
+async function delmongo(queryobj,database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO) {
     try {
         //连接数据库
         await mongo.connect();
         //删
-        const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO)
+        const db = mongo.db(database).collection(datatable)
         const ress = await db.deleteOne(queryobj)
         return ress
     } catch (error) {
@@ -75,16 +75,14 @@ async function delmongo(queryobj) {
 }
 
 //更改
-async function updatamongo(queryobj,setdata){
+async function updatamongo(queryobj,setdata,currentdate,database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO){
     try {
         //连接数据库
         await mongo.connect();
         //改
-        const db = mongo.db(process.env.MONGO_DB_VIDEO).collection(process.env.MONGO_TB_USERVIDEO)
+        const db = mongo.db(database).collection(datatable)
         const ress = await db.updateOne(queryobj,{
-            $currentDate:{
-                lastupdate:true
-            },
+            $currentDate:currentdate,
             $set:setdata
         })
         return ress

@@ -17,12 +17,10 @@ router.post('/login', async (req, res) => {
             password
         }, {
             projection: {
-                username: 1,
-                uuid: 1,
-                isadmin: 1,
+                password:0,
                 _id: 0
             }
-        },'user', 'users')
+        },process.env.MONGO_DB_USER,process.env.MONGO_TB_USERS)
         console.log(finddata);
         const token = jwttoken(finddata[0])
 
