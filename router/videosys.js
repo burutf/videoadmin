@@ -15,7 +15,7 @@ router.get("/getvideolist", async (req, res) => {
   const { auth, uuid } = req.userinfo;
   //query拿到用户传来的配置信息（pramas是数字已经变成字符串了，做了下处理）
   const {
-    page,
+    currentpage,
     pagesize,
     sortobj,
     datefiltle = [],
@@ -48,7 +48,7 @@ router.get("/getvideolist", async (req, res) => {
     projection: { _id: 0 },
     //分页
     //跳过这些条数
-    skip: (page - 1) * pagesize,
+    skip: (currentpage - 1) * pagesize,
     //查出这些条数
     limit: +pagesize,
   };
@@ -59,18 +59,32 @@ router.get("/getvideolist", async (req, res) => {
 
     res.status(200).json({
       code: 200,
+      message: "获取视频列表成功",
       data: {
         sumpage,
         arrlist,
       },
     });
   } catch (error) {
+    //如果是没有查到数据，就返回空数据
+    if (error.code === 400) {
+      res.status(201).json({
+        code: 201,
+        message: "获取视频列表成功",
+        data: {
+          sumpage: 0,
+          arrlist: [],
+        },
+      });
+      return;
+    }
     res.status(error.code).json({
       code: error.code,
       message: error.message,
     });
   }
 });
+
 //删除列表中的一条
 router.delete("/dellist", async (req, res) => {
   const { uuid } = req.userinfo;
