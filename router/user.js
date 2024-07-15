@@ -11,6 +11,9 @@ const {
   countdomongo,
 } = require("../utils/mongoclient");
 
+//引入获取权限列表
+const authlist = require("../utils/authlist");
+
 //获取所有用户的信息
 router.get("/getmongodbusers", async (req, res) => {
   //拿到用户信息
@@ -23,7 +26,7 @@ router.get("/getmongodbusers", async (req, res) => {
     datefiltle = [],
     titlesearch,
     authfil,
-    sortobj
+    sortobj,
   } = req.query.options;
   //查询条件
   let query = {
@@ -42,7 +45,7 @@ router.get("/getmongodbusers", async (req, res) => {
   if (datefiltle.length === 0) delete query.create_date;
   //如果有传递筛选权限那么久执行下面这条
   //权限等级筛选
-  if (authfil) query.auth = +authfil
+  if (authfil) query.auth = +authfil;
 
   //查找配置项
   const optobj = {
@@ -80,19 +83,6 @@ router.get("/getmongodbusers", async (req, res) => {
       },
     });
   } catch (error) {
-    //如果是没有查到数据，就返回空数据
-    if (error.code===400) {
-      res.status(201).json({
-        code: 201,
-        message: "获取用户成功",
-        data: {
-          sumpage:0,
-          arrlist:[],
-        },
-      });
-      return
-    }
-
     res.status(error.code).json({
       code: error.code,
       message: error.message,
@@ -101,25 +91,23 @@ router.get("/getmongodbusers", async (req, res) => {
 });
 
 //获取权限列表
-router.get("/getauthlist", (req, res) => {
+router.get("/getauthlist", async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
-  //先写死了，后面有需要再改
-  const list = [
-    { label: "普通用户", value: 1 },
-    { label: "管理员", value: 9 },
-    { label: "超级管理员", value: 10 },
-  ];
-  //只返回比当前用户级别小的列表
-  const data = list.filter((e) => {
-    return e.value < auth;
-  });
+  try {
+    const data = await authlist(auth);
 
-  res.status(200).json({
-    code: 200,
-    message: "获取权限列表成功",
-    data,
-  });
+    res.status(200).json({
+      code: 200,
+      message: "获取权限列表成功",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code).json({
+      code: error.code,
+      message: "获取权限列表失败",
+    });
+  }
 });
 
 //更改用户信息

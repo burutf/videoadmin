@@ -18,19 +18,13 @@ async function insertmongo(objs,database=process.env.MONGO_DB_VIDEO,datatable=pr
     }
 }
 //查(默认连接的是存储着视频信息的集合)
-async function findmongo(objs,options,database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO) {
+async function findmongo(objs,options={},database=process.env.MONGO_DB_VIDEO,datatable=process.env.MONGO_TB_USERVIDEO) {
     try {
         //连接数据库
         await mongo.connect();
         //查
         const db = mongo.db(database).collection(datatable)
         const ress = await db.find(objs, options).toArray()
-        if (ress.length===0) {
-            return Promise.reject({
-                code:400,
-                message:'未查到数据',
-            })
-        }
         return ress
     } catch (error) {
         return Promise.reject({

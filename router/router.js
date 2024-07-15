@@ -14,6 +14,8 @@ const osssys = require('./osssys')
 const videosys = require('./videosys')
 //用户管理的路由
 const user = require('./user')
+//echarts图表展示相关api
+const echarts = require('./echarts')
 
 module.exports = {
     stsoss,
@@ -23,5 +25,6 @@ module.exports = {
     login,
     osssys,
     videosys,
-    user
+    user,
+    echarts
 }

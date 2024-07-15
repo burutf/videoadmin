@@ -66,18 +66,6 @@ router.get("/getvideolist", async (req, res) => {
       },
     });
   } catch (error) {
-    //如果是没有查到数据，就返回空数据
-    if (error.code === 400) {
-      res.status(201).json({
-        code: 201,
-        message: "获取视频列表成功",
-        data: {
-          sumpage: 0,
-          arrlist: [],
-        },
-      });
-      return;
-    }
     res.status(error.code).json({
       code: error.code,
       message: error.message,
