@@ -1,5 +1,4 @@
-//引入oss的配置
-const client = require('../../config/ossconfig')
+
 //引入oss操作函数(判断单个文件是否存在)
 const {listjy} = require('../osssysutile')
 

@@ -1,5 +1,4 @@
 const OSS = require('ali-oss');
-const path = require("path");
 
 const client = new OSS({
   //自定义的域名

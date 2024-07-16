@@ -71,9 +71,11 @@ async function cancelupload(FileName, uploadId){
     }
 }
 
+
+
 module.exports = {
     getlistoss,
     listjy,
     delfile,
-    cancelupload
+    cancelupload,
 }

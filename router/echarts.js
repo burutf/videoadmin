@@ -9,6 +9,9 @@ const { countdomongo } = require("../utils/mongoclient");
 //引入获取权限列表
 const authlist = require("../utils/authlist");
 
+//引入获取oss存储空间状态的函数
+const { bucketstatus, contentsszie } = require("../utils/ossbucket");
+
 //获取视频状态列表（今日新增、今日修改、总条数）
 router.get("/getvideostatus", async (req, res) => {
   //拿到用户信息
@@ -37,15 +40,15 @@ router.get("/getvideostatus", async (req, res) => {
       code: 200,
       data: [
         {
-          name: "sumpage",
+          name: "总共有这些条视频",
           value: sumpage,
         },
         {
-          name: "todayadd",
+          name: "今天新加的视频数",
           value: todayadd,
         },
         {
-          name: "todayupdate",
+          name: "今天有修改信息的视频数",
           value: todayupdate,
         },
       ],
@@ -66,10 +69,10 @@ function authkk(authgrade) {
     if (auth >= authgrade) {
       next();
     } else {
-        res.status(403).json({
-            code:403,
-            message:'权限不够访问该图表'
-        })
+      res.status(403).json({
+        code: 403,
+        message: "权限不够访问该图表",
+      });
     }
   };
 }
@@ -110,6 +113,43 @@ router.get("/getuserauthsum", authkk(10), async (req, res) => {
       data,
     });
   } catch (error) {
+    res.status(error.code).json({
+      code: error.code,
+      message: error.message,
+    });
+  }
+});
+
+//获取oss的存储状态
+router.get("/getossbucketcharts", async (req, res) => {
+  try {
+    //获取bucket已经存储的总大小和最大支持大小
+    const { storage, max } = await bucketstatus();
+    //获取临时目录的大小
+    let tem = await contentsszie(process.env.USER_TEM);
+    //剩余空间大小
+    let residual = max - storage;
+    //去掉临时目录大小的已存储大小
+    let officialsize = storage - tem
+
+
+    //转为MB，保留两位小数
+    tem = (tem/1024/1024).toFixed(2)
+    residual = (residual/1024/1024).toFixed(2)
+    officialsize = (officialsize/1024/1024).toFixed(2)
+
+
+    res.status(200).json({
+      code: 200,
+      data: [
+        
+        { name: "已存储", value: officialsize },
+        { name: "剩余空间", value: residual },
+        { name: "临时目录", value: tem },
+      ],
+    });
+  } catch (error) {
+    console.log(error);
     res.status(error.code).json({
       code: error.code,
       message: error.message,
