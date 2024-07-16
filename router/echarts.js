@@ -26,6 +26,7 @@ router.get("/getvideostatus", async (req, res) => {
     const endOfDay = moment().endOf("day").toDate();
     const todayadd = await countdomongo({
       createddate: { $gte: startOfDay, $lte: endOfDay },
+      uuid
     });
 
     //今日修改总数
@@ -34,6 +35,7 @@ router.get("/getvideostatus", async (req, res) => {
         { lastupdate: { $gte: startOfDay, $lte: endOfDay } },
         { $expr: { $ne: ["$lastupdate", "$createddate"] } },
       ],
+      uuid
     });
 
     res.status(200).json({
