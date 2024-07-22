@@ -18,17 +18,16 @@ app.use(bodyParser.json());
 //登陆
 app.use('/api',login)
 
-//使用中间件，校验jwt，在这之下的路由都将被中间件所校验
-app.use(verifytoken)
+//使用中间件，校验jwt，(verifytoken)
 //路由
 app.use('/api',gettime) //获取服务器时间
-app.use('/api',stsoss)  //获取sts验证
-app.use('/api',extras)  //额外的一些api
-app.use('/api',ossupload) //oss上传的一些操作和校验
-app.use('/api',osssys)  //oss的各种操作
-app.use('/api',videosys)//视频管理相关的api
-app.use('/api',user)    //用户相关的api
-app.use('/api',echarts) //echarts图表展示api
+app.use('/api',verifytoken,stsoss)  //获取sts验证
+app.use('/api',verifytoken,extras)  //额外的一些api
+app.use('/api',verifytoken,ossupload) //oss上传的一些操作和校验
+app.use('/api',verifytoken,osssys)  //oss的各种操作
+app.use('/api',verifytoken,videosys)//视频管理相关的api
+app.use('/api',verifytoken,user)    //用户相关的api
+app.use('/api',verifytoken,echarts) //echarts图表展示api
 
 //404
 app.use((req, res) => {
