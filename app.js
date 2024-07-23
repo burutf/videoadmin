@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 //引入路由
-const {stsoss,extras,ossupload,gettime,login,osssys,videosys,user,echarts} = require('./router/router')
+const {stsoss,extras,ossupload,gettime,login,osssys,videosys,user,echarts,clientapi} = require('./router/router')
 //引入body-parser，将body数据解析到res中
 const bodyParser = require('body-parser')
 //引入中间件函数
@@ -28,6 +28,8 @@ app.use('/api',verifytoken,osssys)  //oss的各种操作
 app.use('/api',verifytoken,videosys)//视频管理相关的api
 app.use('/api',verifytoken,user)    //用户相关的api
 app.use('/api',verifytoken,echarts) //echarts图表展示api
+//前台的路由
+app.use('/clientapi',clientapi)
 
 //404
 app.use((req, res) => {

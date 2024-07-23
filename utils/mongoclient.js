@@ -44,7 +44,7 @@ async function findmongo(
 }
 
 //多表联查
-async function aggregatemongo(from, field, database, datatable,match) {
+async function aggregatemongo(from, field, database, datatable,match={}) {
   try {
     //连接数据库
     await mongo.connect();
@@ -54,13 +54,14 @@ async function aggregatemongo(from, field, database, datatable,match) {
       .aggregate([
         {
           $lookup: {
-            from,
-            localField: field,
-            foreignField: field,
-            as: "aggarr",
+            from,//关联哪个表
+            localField: field,//当前使用哪个字段关联
+            foreignField: field,//用关联表的哪个字段
+            as: "aggarr",//将关联来的数据用这个来接收
           },
         },
         {
+          //这里是进行筛选
           $match:match
         },
         {

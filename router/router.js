@@ -1,3 +1,12 @@
+
+
+// 
+// 
+//  后台管理api
+// 
+// 
+
+
 //sts阿里云
 const stsoss = require('./stsossa');
 //额外信息(分类列表)
@@ -17,6 +26,15 @@ const user = require('./user')
 //echarts图表展示相关api
 const echarts = require('./echarts')
 
+//
+//
+//  前台页面api
+//
+//
+
+const clientapi = require('./client/index')
+
+
 module.exports = {
     stsoss,
     extras,
@@ -26,5 +44,6 @@ module.exports = {
     osssys,
     videosys,
     user,
-    echarts
+    echarts,
+    clientapi
 }
