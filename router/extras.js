@@ -40,7 +40,8 @@ router.get('/getclassifylist', (req, res) => {
                 "美食",
                 "偶像",
                 "乙女",
-                "职场"
+                "职场",
+                "武侠"
             ]
         })
     } catch (error) {

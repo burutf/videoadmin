@@ -8,12 +8,18 @@ const {stsoss,extras,ossupload,gettime,login,osssys,videosys,user,echarts,client
 //引入body-parser，将body数据解析到res中
 const bodyParser = require('body-parser')
 //引入中间件函数
-const verifytoken = require('./middleware/verifytoken')
+const {verifytoken} = require('./middleware/verifytoken')
+
+//引入cookie
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 // 解析 url-encoded格式的表单数据
 app.use(bodyParser.urlencoded({ extended: false }));
 // 解析json格式的表单数据
 app.use(bodyParser.json());
+
+
 
 //登陆
 app.use('/api',login)

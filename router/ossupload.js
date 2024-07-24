@@ -18,10 +18,10 @@ const {delfile} = require('../utils/osssysutile')
 
 //视频、表单数据接收
 router.post('/fullupload', async (req, res) => {
-    //拿到用户所上传的视频列表和表单数据
-    const { filelist, formdata,videoid='',delvideolist=[] } = req.body;
+    //拿到用户所上传的视频列表和表单数据,还有临时上传的目录名字
+    const { filelist, formdata,temid,videoid='',delvideolist=[] } = req.body;
     //拿到当前登录的用户id
-    const { uuid,iat } = req.userinfo;
+    const { uuid } = req.userinfo;
 
     try {
 
@@ -50,7 +50,7 @@ router.post('/fullupload', async (req, res) => {
         })
         //完成后清除临时目录
         try {
-            const pathname = process.env.USER_TEM + uuid + '/'+iat+'/'
+            const pathname = process.env.USER_TEM + uuid + '/'+temid+'/'
             await deltem(pathname)
         } catch (error) {}
 

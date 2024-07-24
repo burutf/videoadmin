@@ -29,8 +29,12 @@ async function deltem(pathname) {
     try {
         //拿到oss里的文件列表
         const list = await getlistoss(pathname)
+        if (list.length===0) {
+            return '没有文件可以删除'
+        }
         //只找出文件名来
         const namelist = list.map(e => e.name)
+
         await delfile(namelist, true)
         return 'ok'
     } catch (error) {
