@@ -29,7 +29,7 @@ router.get("/getvideostatus", async (req, res) => {
       uuid
     });
 
-    //今日修改总数
+    //今日更新总数
     const todayupdate = await countdomongo({
       $and: [
         { lastupdate: { $gte: startOfDay, $lte: endOfDay } },
@@ -42,15 +42,15 @@ router.get("/getvideostatus", async (req, res) => {
       code: 200,
       data: [
         {
-          name: "总共有这些条视频",
+          name: "总共有这些部视频",
           value: sumpage,
         },
         {
-          name: "今天新加的视频数",
+          name: "今天新加的部数",
           value: todayadd,
         },
         {
-          name: "今天有修改信息的视频数",
+          name: "今天更新的部数",
           value: todayupdate,
         },
       ],

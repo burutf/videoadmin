@@ -10,9 +10,11 @@ const bodyParser = require('body-parser')
 //引入中间件函数
 const {verifytoken} = require('./middleware/verifytoken')
 
+
 //引入cookie
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+
 
 // 解析 url-encoded格式的表单数据
 app.use(bodyParser.urlencoded({ extended: false }));

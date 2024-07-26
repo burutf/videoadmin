@@ -5,6 +5,13 @@ const router = express.Router();
 //引入数据库函数
 const { aggregatemongo } = require("../../utils/mongoclient");
 
+//引入日期格式化
+const moment = require("moment");
+
+// 获取今天的开始和结束时间
+const startOfDay = moment().startOf("day").toDate();
+const endOfDay = moment().endOf("day").toDate();
+
 
 //获取轮播图列表
 router.get("/getbslideshow", async (req, res) => {
@@ -32,6 +39,9 @@ router.get("/getbslideshow", async (req, res) => {
     });
   }
 });
+
+
+//获取今日更新的视频列表
 
 
 module.exports = router
