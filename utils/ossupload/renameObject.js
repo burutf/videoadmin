@@ -101,7 +101,7 @@ async function onepromise(e) {
         //是不是已经上传了的
         isbeforup: e.isbeforup || false,
         //上传日期(有这个属性就直接用，没有就用现在的时间)
-        uploaddate: e.uploaddate || new Date(),
+        uploaddate: new Date(e.uploaddate) || new Date(),
       };
     } else {
       //封面
@@ -127,7 +127,7 @@ async function onepromise(e) {
         //是不是已经上传了的
         isbeforup: true,
         //上传日期
-        uploaddate: e.uploaddate || new Date(),
+        uploaddate: new Date(e.uploaddate) || new Date(),
       };
     }
   } catch (error) {

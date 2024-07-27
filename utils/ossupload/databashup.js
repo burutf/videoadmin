@@ -26,8 +26,9 @@ async function upmongodb(obj, formdata, uuid, isupdata) {
         delete update.lastupdate
       }
 
-      //删掉对象的lastupdate属性，防止冲突
+      //删掉对象的日期属性，防止冲突
       delete listdisposal.lastupdate;
+      delete listdisposal.createddate
       await updatamongo(
         { videoid, uuid },
         {
