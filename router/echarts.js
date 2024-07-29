@@ -12,8 +12,11 @@ const authlist = require("../utils/authlist");
 //引入获取oss存储空间状态的函数
 const { bucketstatus, contentsszie } = require("../utils/ossbucket");
 
+//引入中间件函数
+const {verifytoken} = require('../middleware/verifytoken')
+
 //获取视频状态列表（今日新增、今日修改、总条数）
-router.get("/getvideostatus", async (req, res) => {
+router.get("/getvideostatus",verifytoken, async (req, res) => {
   //拿到用户信息
   const { uuid } = req.userinfo;
   try {
@@ -99,7 +102,7 @@ async function mapauth(queryauth, name) {
   }
 }
 //获取用户权限分布
-router.get("/getuserauthsum", authkk(10), async (req, res) => {
+router.get("/getuserauthsum", verifytoken,authkk(10), async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
   try {
@@ -123,7 +126,7 @@ router.get("/getuserauthsum", authkk(10), async (req, res) => {
 });
 
 //获取oss的存储状态
-router.get("/getossbucketcharts", async (req, res) => {
+router.get("/getossbucketcharts",verifytoken, async (req, res) => {
   try {
     //获取bucket已经存储的总大小和最大支持大小
     const { storage, max } = await bucketstatus();

@@ -3,7 +3,11 @@ const express = require("express");
 const router = express.Router();
 
 //引入数据库函数
-const { aggregatemongo, findmongo } = require("../../utils/mongoclient");
+const {
+  aggregatemongo,
+  findmongo,
+  countdomongo,
+} = require("../../utils/mongoclient");
 
 //引入日期格式化
 const moment = require("moment");
@@ -79,7 +83,6 @@ router.get("/getlikelist", async (req, res) => {
   const { pagesize = 0, pageindex = 1 } = req.query;
   // 获取今天的开始和结束时间
   const startOfDay = moment().startOf("day").toDate();
-  const endOfDay = moment().endOf("day").toDate();
   try {
     const data = await findmongo(
       {
@@ -100,6 +103,164 @@ router.get("/getlikelist", async (req, res) => {
     data.forEach((e) => {
       e.updatenum = e.videolist.length;
     });
+
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+});
+
+//视频类型列表
+router.get("/getclassifylist", (req, res) => {
+  try {
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data: [
+        "热血",
+        "穿越",
+        "奇幻",
+        "战斗",
+        "搞笑",
+        "日常",
+        "科幻",
+        "萌系",
+        "治愈",
+        "校园",
+        "少儿",
+        "泡面",
+        "恋爱",
+        "少女",
+        "魔法",
+        "冒险",
+        "历史",
+        "架空",
+        "机战",
+        "神魔",
+        "声控",
+        "运动",
+        "励志",
+        "音乐",
+        "推理",
+        "社团",
+        "智斗",
+        "催泪",
+        "美食",
+        "偶像",
+        "乙女",
+        "职场",
+        "武侠",
+      ],
+    });
+  } catch (error) {
+    res.status(400).json({
+      code: 400,
+      message: "获取视频分类列表失败",
+      data: error,
+    });
+  }
+});
+
+//获取视频列表（筛选加排序）
+router.get("/getvideolistzs", async (req, res) => {
+  //接收筛选、排序、查找条的数量和第几次查询，默认为0，不限制
+  const { objvalue, sortobj, pagesize = 0, pageindex = 1 } = req.query;
+  const { style, status, type } = objvalue;
+  //查询
+  const query = {
+    classify: style,
+    status,
+    type,
+  };
+  //配置项
+  const options = {
+    //排序
+    sort: sortobj,
+    //隐藏字段
+    projection: { _id: 0 },
+    //分页
+    //跳过这些条数
+    skip: (pageindex - 1) * pagesize,
+    //查出这些条数
+    limit: +pagesize,
+  };
+  //值为全部就删除这个属性
+  if (style === "全部") delete query.classify;
+  if (status === "全部") delete query.status;
+  if (type === "全部") delete query.type;
+
+  try {
+    //查出总共找出来了多少条
+    const sumnum = await countdomongo(query);
+    //数据
+    const data = await findmongo(query, options);
+    //进行数据处理，根据每条数据添加上代表更新至多少回
+    data.forEach((e) => {
+      e.updatenum = e.videolist.length;
+    });
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data,
+      sumnum,
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+});
+
+//全局搜索建议
+router.get("/searchallasdasd", async (req, res) => {
+  const { text } = req.query;
+  try {
+    const reqdata = await findmongo(
+      { title: { $regex: text } },
+      {
+        //隐藏字段
+        projection: { title: 1, videoid: 1, _id: 0 },
+      }
+    );
+    const data = reqdata.map((e) => {
+      return {
+        value: e.title,
+        address: e.videoid,
+      };
+    });
+
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+});
+
+//获取搜索视频列表
+router.get("/getsearchlist", async (req, res) => {
+  const { text } = req.query;
+  try {
+    const data = await findmongo(
+      { title: { $regex: text } },
+      {
+        //隐藏字段
+        projection: { _id: 0 },
+      }
+    );
 
     res.status(200).json({
       code: 200,

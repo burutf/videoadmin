@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 
 function verifytoken(req,res,next){
-
     // 获取请求头中的 Authorization(就是token)
     const authorization = req.headers.authorization
     

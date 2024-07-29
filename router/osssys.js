@@ -8,8 +8,11 @@ const { delfile, cancelupload } = require("../utils/osssysutile");
 //引入oss批量操作函数
 const { deltem } = require("../utils/delinbatches");
 
+//引入中间件函数
+const {verifytoken} = require('../middleware/verifytoken')
+
 //删除文件
-router.delete("/delossfile", async (req, res) => {
+router.delete("/delossfile",verifytoken, async (req, res) => {
   const { FileName, ismulti } = req.query;
   try {
     await delfile(FileName, ismulti);
@@ -26,7 +29,7 @@ router.delete("/delossfile", async (req, res) => {
 });
 
 //删除临时目录下的指定目录
-router.delete("/delosscontents", async (req, res) => {
+router.delete("/delosscontents",verifytoken, async (req, res) => {
     
   const { temid } = req.query;
   //拿到当前登录的用户id
@@ -49,7 +52,7 @@ router.delete("/delosscontents", async (req, res) => {
 });
 
 //取消分片上传
-router.post("/cancelupload", async (req, res) => {
+router.post("/cancelupload",verifytoken, async (req, res) => {
   const { FileName, uploadId } = req.body;
   try {
     await cancelupload(FileName, uploadId);

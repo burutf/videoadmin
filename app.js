@@ -4,11 +4,9 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 //引入路由
-const {stsoss,extras,ossupload,gettime,login,osssys,videosys,user,echarts,clientapi} = require('./router/router')
+const {stsoss,ossupload,gettime,login,osssys,videosys,user,echarts,clientapi} = require('./router/router')
 //引入body-parser，将body数据解析到res中
 const bodyParser = require('body-parser')
-//引入中间件函数
-const {verifytoken} = require('./middleware/verifytoken')
 
 
 //引入cookie
@@ -22,22 +20,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
-
 //登陆
 app.use('/api',login)
 
-//使用中间件，校验jwt，(verifytoken)
+
 //路由
 app.use('/api',gettime) //获取服务器时间
-app.use('/api',verifytoken,stsoss)  //获取sts验证
-app.use('/api',verifytoken,extras)  //额外的一些api
-app.use('/api',verifytoken,ossupload) //oss上传的一些操作和校验
-app.use('/api',verifytoken,osssys)  //oss的各种操作
-app.use('/api',verifytoken,videosys)//视频管理相关的api
-app.use('/api',verifytoken,user)    //用户相关的api
-app.use('/api',verifytoken,echarts) //echarts图表展示api
-//前台的路由
-app.use('/clientapi',clientapi)
+app.use('/api',stsoss)  //获取sts验证
+app.use('/api',ossupload) //oss上传的一些操作和校验
+app.use('/api',osssys)  //oss的各种操作
+app.use('/api',videosys)//视频管理相关的api
+app.use('/api',user)    //用户相关的api
+app.use('/api',echarts) //echarts图表展示api
+app.use('/api',clientapi)//各种获取操作
 
 //404
 app.use((req, res) => {

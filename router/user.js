@@ -2,6 +2,9 @@
 const express = require("express");
 const router = express.Router();
 
+//引入中间件函数
+const {verifytoken} = require('../middleware/verifytoken')
+
 //引入数据库操作函数
 const {
   findmongo,
@@ -14,8 +17,18 @@ const {
 //引入获取权限列表
 const authlist = require("../utils/authlist");
 
+//获取用户信息
+router.get('/getuserinfo',verifytoken,(req,res)=>{
+  res.status(200).json({
+      code:200,
+      message:'ok',
+      data:req.userinfo
+  })
+})
+
+
 //获取所有用户的信息
-router.get("/getmongodbusers", async (req, res) => {
+router.get("/getmongodbusers",verifytoken, async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
 
@@ -91,7 +104,7 @@ router.get("/getmongodbusers", async (req, res) => {
 });
 
 //获取权限列表
-router.get("/getauthlist", async (req, res) => {
+router.get("/getauthlist", verifytoken,async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
   try {
@@ -111,7 +124,7 @@ router.get("/getauthlist", async (req, res) => {
 });
 
 //更改用户信息
-router.post("/updateuser", async (req, res) => {
+router.post("/updateuser",verifytoken, async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
   const { form, uptype } = req.body;
@@ -169,7 +182,7 @@ router.post("/updateuser", async (req, res) => {
 });
 
 //删除用户
-router.delete("/deluser", async (req, res) => {
+router.delete("/deluser",verifytoken, async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
   //传来的要删除的用户id
@@ -212,7 +225,7 @@ router.delete("/deluser", async (req, res) => {
 });
 
 //新增用户
-router.post("/adduser", async (req, res) => {
+router.post("/adduser", verifytoken,async (req, res) => {
   //拿到用户信息
   const { auth } = req.userinfo;
   //用户信息

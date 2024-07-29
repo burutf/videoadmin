@@ -8,12 +8,15 @@ const { STS } = require('ali-oss');
 const express = require('express');
 const router = express.Router();
 
+//引入中间件函数
+const {verifytoken} = require('../middleware/verifytoken')
+
 const sts = new STS({
     // 填写创建的RAM用户AccessKey
     accessKeyId: process.env.OSS_ACCESS_KEY_ID,
     accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET
 });
-router.get('/sts', async (req, res) => {
+router.get('/sts',verifytoken, async (req, res) => {
 
     try {
         const { credentials } = await sts.assumeRole('acs:ram::1550100793613587:role/ramoss', '', '3600', 'sessiontest')

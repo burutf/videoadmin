@@ -9,8 +9,6 @@
 
 //sts阿里云
 const stsoss = require('./stsossa');
-//额外信息(分类列表)
-const extras = require('./extras');
 //oss上传时的路由
 const ossupload = require('./ossupload')
 //服务器时间
@@ -37,7 +35,6 @@ const clientapi = require('./client/index')
 
 module.exports = {
     stsoss,
-    extras,
     ossupload,
     gettime,
     login,

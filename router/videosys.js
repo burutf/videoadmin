@@ -1,6 +1,8 @@
 //引入路由
 const express = require("express");
 const router = express.Router();
+//引入中间件函数
+const {verifytoken} = require('../middleware/verifytoken')
 
 const {
   findmongo,
@@ -14,8 +16,10 @@ const { delinbatches } = require("../utils/delinbatches");
 
 const { headandcopyanddel, delfile } = require("../utils/osssysutile");
 
+
+
 //获取视频列表
-router.get("/getvideolist", async (req, res) => {
+router.get("/getvideolist",verifytoken, async (req, res) => {
   //拿到用户信息
   const { auth, uuid } = req.userinfo;
   //query拿到用户传来的配置信息（pramas是数字已经变成字符串了，做了下处理）
@@ -79,7 +83,7 @@ router.get("/getvideolist", async (req, res) => {
 });
 
 //删除列表中的一条
-router.delete("/dellist", async (req, res) => {
+router.delete("/dellist",verifytoken, async (req, res) => {
   const { uuid } = req.userinfo;
   const { videoid } = req.query;
   try {
@@ -97,7 +101,7 @@ router.delete("/dellist", async (req, res) => {
 });
 
 //批量删除
-router.delete("/dellistbatch", async (req, res) => {
+router.delete("/dellistbatch",verifytoken, async (req, res) => {
   const { uuid } = req.userinfo;
   const { videoidlist } = req.query;
 
@@ -121,7 +125,7 @@ router.delete("/dellistbatch", async (req, res) => {
 });
 
 //更改视频列表
-router.post("/updatalist", async (req, res) => {
+router.post("/updatalist",verifytoken, async (req, res) => {
   const { uuid } = req.userinfo;
   const { videoid, setdata } = req.body;
   try {
@@ -142,7 +146,7 @@ router.post("/updatalist", async (req, res) => {
 });
 
 //设置轮播图展示
-router.post("/setslideshow", async (req, res) => {
+router.post("/setslideshow",verifytoken, async (req, res) => {
   //接收视频id和布尔值
   const { videoid, settingobj } = req.body;
   try {
@@ -203,7 +207,7 @@ router.post("/setslideshow", async (req, res) => {
 });
 
 //获取轮播图列表
-router.get("/getslideshowlist", async (req, res) => {
+router.get("/getslideshowlist",verifytoken, async (req, res) => {
   try {
     const data = await aggregatemongo(
       process.env.MONGO_TB_USERVIDEO,
@@ -230,7 +234,7 @@ router.get("/getslideshowlist", async (req, res) => {
 });
 
 //删除轮播图中的一条
-router.delete("/delslideshowlist", async (req, res) => {
+router.delete("/delslideshowlist",verifytoken, async (req, res) => {
   const { videoid } = req.query;
   try {
     //设置轮播图展示清除
@@ -276,7 +280,7 @@ async function delslfn(videoid) {
 }
 
 //更改轮播图中的图片
-router.post("/updateslideshowimg", async (req, res) => {
+router.post("/updateslideshowimg",verifytoken, async (req, res) => {
   //拿到用户信息
   const { uuid } = req.userinfo;
   const { imgobj, videoid, coverurl } = req.body;

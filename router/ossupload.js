@@ -14,10 +14,13 @@ const {delinbatches,deltem} = require('../utils/delinbatches')
 //导入删除文件函数
 const {delfile} = require('../utils/osssysutile')
 
+//引入中间件函数
+const {verifytoken} = require('../middleware/verifytoken')
+
 
 
 //视频、表单数据接收
-router.post('/fullupload', async (req, res) => {
+router.post('/fullupload',verifytoken, async (req, res) => {
     //拿到用户所上传的视频列表和表单数据,还有临时上传的目录名字
     const { filelist, formdata,temid,videoid='',delvideolist=[] } = req.body;
     //拿到当前登录的用户id
