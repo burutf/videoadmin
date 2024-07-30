@@ -275,4 +275,67 @@ router.get("/getsearchlist", async (req, res) => {
   }
 });
 
+//根据id获取视频信息
+router.get("/getvideo", async (req, res) => {
+  //拿到视频id
+  const { videoid } = req.query;
+  try {
+    const data = await findmongo(
+      { videoid },
+      {
+        //隐藏字段
+        projection: { _id: 0 },
+      }
+    );
+
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data: data[0],
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+});
+
+//获取相关推荐
+router.get("/getcorrelation", async (req, res) => {
+  //拿到视频id
+  const { videoid,pagesize=10 } = req.query;
+  try {
+    //获取到风格数组
+    const [{ classify }] = await findmongo(
+      { videoid },
+      {
+        //隐藏字段
+        projection: { classify: 1,_id:0 },
+      }
+    );
+    //根据风格数组来查询相关的
+    const data = await findmongo(
+      { classify: { $in: classify }, videoid: { $ne: videoid } },
+      {
+        //查出这些条数
+        limit: +pagesize,
+        //隐藏字段
+        projection: {_id:0 },
+      }
+    );
+
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;

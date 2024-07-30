@@ -170,7 +170,7 @@ router.post("/setslideshow",verifytoken, async (req, res) => {
             //绑定的视频id
             videoid,
             //图片的url
-            coverurl: "",
+            urlname: "",
             isstart: true,
             //上传日期
             date: new Date(),
@@ -258,13 +258,13 @@ router.delete("/delslideshowlist",verifytoken, async (req, res) => {
 //进行删除判断
 async function delslfn(videoid) {
   //查出这条有没有设置图片地址
-  const [{coverurl}] = await findmongo(
+  const [{urlname}] = await findmongo(
     { videoid },
     {},
     undefined,
     process.env.MONGO_TB_SLIDESHOW
   );
-  if (coverurl) {
+  if (urlname) {
     //如果有设置图片地址的话不直接删除，通过设置开关，关闭掉
     await updatamongo(
       { videoid },
@@ -283,14 +283,14 @@ async function delslfn(videoid) {
 router.post("/updateslideshowimg",verifytoken, async (req, res) => {
   //拿到用户信息
   const { uuid } = req.userinfo;
-  const { imgobj, videoid, coverurl } = req.body;
+  const { imgobj, videoid, urlname } = req.body;
   try {
     //删除之前上传的文件(之前没有的话就不删除)
-    if (coverurl) await delfile(coverurl);
+    if (urlname) await delfile(urlname);
 
     //copy到的位置，使用时间戳命名
     const movepath =
-      "/video/" +
+      "video/" +
       uuid +
       "/" +
       videoid +
@@ -303,7 +303,7 @@ router.post("/updateslideshowimg",verifytoken, async (req, res) => {
     //将地址更新到数据库中
     await updatamongo(
       { videoid },
-      { coverurl: newurl },
+      { urlname: newurl },
       {},
       undefined,
       process.env.MONGO_TB_SLIDESHOW

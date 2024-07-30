@@ -80,11 +80,10 @@ async function headandcopyanddel(movepath,urlname) {
         message: "文件不存在",
       });
     }
-    const {res:{requestUrls}} = await client.copy(movepath, urlname);
+    await client.copy(movepath, urlname);
     delfile(urlname);
-    return requestUrls[0]
+    return movepath
   } catch (error) {
-    console.log(error);
     return Promise.reject({
       code: error.code,
       message: error.message,
