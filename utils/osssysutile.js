@@ -1,6 +1,23 @@
 //引入oss的配置
 const client = require("../config/ossconfig");
 
+//获取签名url
+async function getsignatureurl(urlname) {
+  try {
+    const url = client.signatureUrl(urlname, {
+      // 设置过期时间为3600s。
+      expires: 3600,
+    });
+    return url;
+  } catch (error) {
+    return Promise.reject({
+      code: 500,
+      message: "获取签名失败",
+      messerr: error.message,
+    });
+  }
+}
+
 //获取文件列表
 async function getlistoss(strname) {
   try {
@@ -68,10 +85,8 @@ async function cancelupload(FileName, uploadId) {
   }
 }
 
-
-
 //单文件组合操作（检验》复制+删除原文件）
-async function headandcopyanddel(movepath,urlname) {
+async function headandcopyanddel(movepath, urlname) {
   try {
     const isex = await listjy(urlname);
     if (!isex.exist) {
@@ -82,7 +97,7 @@ async function headandcopyanddel(movepath,urlname) {
     }
     await client.copy(movepath, urlname);
     delfile(urlname);
-    return movepath
+    return movepath;
   } catch (error) {
     return Promise.reject({
       code: error.code,
@@ -92,6 +107,7 @@ async function headandcopyanddel(movepath,urlname) {
 }
 
 module.exports = {
+  getsignatureurl,
   getlistoss,
   listjy,
   delfile,

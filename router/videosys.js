@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 //引入中间件函数
-const {verifytoken} = require('../middleware/verifytoken')
+const { verifytoken } = require("../middleware/verifytoken");
 
 const {
   findmongo,
@@ -16,10 +16,8 @@ const { delinbatches } = require("../utils/delinbatches");
 
 const { headandcopyanddel, delfile } = require("../utils/osssysutile");
 
-
-
 //获取视频列表
-router.get("/getvideolist",verifytoken, async (req, res) => {
+router.get("/getvideolist", verifytoken, async (req, res) => {
   //拿到用户信息
   const { auth, uuid } = req.userinfo;
   //query拿到用户传来的配置信息（pramas是数字已经变成字符串了，做了下处理）
@@ -83,7 +81,7 @@ router.get("/getvideolist",verifytoken, async (req, res) => {
 });
 
 //删除列表中的一条
-router.delete("/dellist",verifytoken, async (req, res) => {
+router.delete("/dellist", verifytoken, async (req, res) => {
   const { uuid } = req.userinfo;
   const { videoid } = req.query;
   try {
@@ -101,7 +99,7 @@ router.delete("/dellist",verifytoken, async (req, res) => {
 });
 
 //批量删除
-router.delete("/dellistbatch",verifytoken, async (req, res) => {
+router.delete("/dellistbatch", verifytoken, async (req, res) => {
   const { uuid } = req.userinfo;
   const { videoidlist } = req.query;
 
@@ -125,7 +123,7 @@ router.delete("/dellistbatch",verifytoken, async (req, res) => {
 });
 
 //更改视频列表
-router.post("/updatalist",verifytoken, async (req, res) => {
+router.post("/updatalist", verifytoken, async (req, res) => {
   const { uuid } = req.userinfo;
   const { videoid, setdata } = req.body;
   try {
@@ -146,15 +144,15 @@ router.post("/updatalist",verifytoken, async (req, res) => {
 });
 
 //设置轮播图展示
-router.post("/setslideshow",verifytoken, async (req, res) => {
+router.post("/setslideshow", verifytoken, async (req, res) => {
   //接收视频id和布尔值
-  const { videoid, settingobj } = req.body;
+  const { videoid, isslideshow } = req.body;
   try {
     //设置轮播图展示
-    await updatamongo({ videoid }, { setting: settingobj });
+    await updatamongo({ videoid }, { "setting.isslideshow": isslideshow });
 
     //看看是要添加还是移除
-    if (settingobj.isslideshow) {
+    if (isslideshow) {
       //看看有没这条
       const count = await countdomongo(
         { videoid },
@@ -198,16 +196,15 @@ router.post("/setslideshow",verifytoken, async (req, res) => {
       message: "OK",
     });
   } catch (error) {
-    console.log(error);
     res.status(error.code).json({
       code: error.code,
-      message: code.message,
+      message: error.message,
     });
   }
 });
 
 //获取轮播图列表
-router.get("/getslideshowlist",verifytoken, async (req, res) => {
+router.get("/getslideshowlist", verifytoken, async (req, res) => {
   try {
     const data = await aggregatemongo(
       process.env.MONGO_TB_USERVIDEO,
@@ -216,6 +213,13 @@ router.get("/getslideshowlist",verifytoken, async (req, res) => {
       process.env.MONGO_TB_SLIDESHOW,
       {
         isstart: true,
+      },
+      {
+        "aggarr.videolist": 0,
+        _id: 0,
+      },
+      {
+        serial: 1,
       }
     );
 
@@ -225,62 +229,70 @@ router.get("/getslideshowlist",verifytoken, async (req, res) => {
       data,
     });
   } catch (error) {
-    console.log(error);
     res.status(error.code).json({
       code: error.code,
-      message: code.message,
+      message: error.message,
     });
   }
 });
 
 //删除轮播图中的一条
-router.delete("/delslideshowlist",verifytoken, async (req, res) => {
-  const { videoid } = req.query;
+router.delete("/delslideshowlist", verifytoken, async (req, res) => {
+  const { videoid, isthoroughdel } = req.query;
   try {
     //设置轮播图展示清除
     await updatamongo({ videoid }, { "setting.isslideshow": false });
     //进行删除判断（有设置过图片地址就设置属性为false，没有就直接删除）
-    await delslfn(videoid);
+    await delslfn(videoid, isthoroughdel);
 
     res.status(200).json({
       code: 200,
       message: "OK",
     });
   } catch (error) {
-    console.log(error);
     res.status(error.code).json({
       code: error.code,
-      message: code.message,
+      message: error.message,
     });
   }
 });
 
-//进行删除判断
-async function delslfn(videoid) {
+//进行删除判断('isthoroughdel'是否彻底删除)
+async function delslfn(videoid, isthoroughdel) {
   //查出这条有没有设置图片地址
-  const [{urlname}] = await findmongo(
+  const [{ urlname }] = await findmongo(
     { videoid },
     {},
     undefined,
     process.env.MONGO_TB_SLIDESHOW
   );
+
+  //如果是彻底删除的话
+  if (isthoroughdel) {
+    //删除文件
+    await delfile(urlname);
+    //从轮播图集合删除这条
+    await delmongo({ videoid }, undefined, process.env.MONGO_TB_SLIDESHOW);
+    return;
+  }
+
   if (urlname) {
     //如果有设置图片地址的话不直接删除，通过设置开关，关闭掉
     await updatamongo(
       { videoid },
-      { isstart: false },
+      { isstart: false,serial:'' },
       {},
       undefined,
       process.env.MONGO_TB_SLIDESHOW
     );
   } else {
-    //从轮播图集合删除这条(没有设置的话就直接删除)
+    //从轮播图集合删除这条
     await delmongo({ videoid }, undefined, process.env.MONGO_TB_SLIDESHOW);
   }
 }
 
-//更改轮播图中的图片
-router.post("/updateslideshowimg",verifytoken, async (req, res) => {
+//更改或上传轮播图中的图片
+router.post("/updateslideshowimg", verifytoken, async (req, res) => {
   //拿到用户信息
   const { uuid } = req.userinfo;
   const { imgobj, videoid, urlname } = req.body;
@@ -314,10 +326,70 @@ router.post("/updateslideshowimg",verifytoken, async (req, res) => {
       message: "OK",
     });
   } catch (error) {
-    console.log(error);
     res.status(error.code).json({
       code: error.code,
-      message: code.message,
+      message: error.message,
+    });
+  }
+});
+
+//获取历史轮播图列表
+router.get("/gethistorylist", async (req, res) => {
+  try {
+    const data = await aggregatemongo(
+      process.env.MONGO_TB_USERVIDEO,
+      "videoid",
+      process.env.MONGO_DB_VIDEO,
+      process.env.MONGO_TB_SLIDESHOW,
+      {
+        isstart: false,
+      },
+      {
+        videoid: 1,
+        _id: 0,
+        date: 1,
+        isstart: 1,
+        "aggarr.title": 1,
+        urlname: 1,
+      }
+    );
+    res.status(200).json({
+      code: 200,
+      message: "OK",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code).json({
+      code: error.code,
+      message: error.message,
+    });
+  }
+});
+
+//轮播图设置编号
+router.post("/setserialslideshow", async (req, res) => {
+  const { videoidlist = [] } = req.body;
+  try {
+    //进行遍历更改或添加编号
+    const allpomise = videoidlist.map((e, i) => {
+      updatamongo(
+        { videoid: e },
+        { serial: i+1 },
+        {},
+        undefined,
+        process.env.MONGO_TB_SLIDESHOW
+      );
+    });
+    await Promise.all(allpomise)
+
+    res.status(200).json({
+      code: 200,
+      message: "OK",
+    });
+  } catch (error) {
+    res.status(error.code).json({
+      code: error.code,
+      message: error.message,
     });
   }
 });

@@ -1,0 +1,33 @@
+# 自定义域名
+OSS_CN=
+# 阿里云RAM用户的AccessKey
+OSS_ACCESS_KEY_ID=
+OSS_ACCESS_KEY_SECRET=
+# Bucket名称
+OSS_BUCKET=
+# 填写Bucket所在地域
+OSS_REGION=
+# 开放端口
+port=
+
+
+# mongodb数据库的url
+MONGO_URL=
+# 存放视频位置的数据库
+MONGO_DB_VIDEO=
+# 存放用户上传视频信息的数据集合
+MONGO_TB_USERVIDEO=
+# 存放轮播图的集合
+MONGO_TB_SLIDESHOW=
+# 存放用户信息的数据库
+MONGO_DB_USER=
+# 存放用户信息的集合
+MONGO_TB_USERS=
+
+# 用户上传的文件前缀
+USER_PREFIX=
+# 用户视频临时存储的前缀
+USER_TEM=
+
+# jwt秘钥
+JWT_PASS=

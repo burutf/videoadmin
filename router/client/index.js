@@ -9,6 +9,9 @@ const {
   countdomongo,
 } = require("../../utils/mongoclient");
 
+//引入oss签名函数
+const { getsignatureurl } = require("../../utils/osssysutile");
+
 //引入日期格式化
 const moment = require("moment");
 
@@ -62,6 +65,7 @@ router.get("/gettodaylist", async (req, res) => {
     //进行数据处理，根据每条数据添加上代表更新至多少回
     data.forEach((e) => {
       e.updatenum = e.videolist.length;
+      delete e.videolist;
     });
 
     res.status(200).json({
@@ -102,6 +106,7 @@ router.get("/getlikelist", async (req, res) => {
     //进行数据处理，根据每条数据添加上代表更新至多少回
     data.forEach((e) => {
       e.updatenum = e.videolist.length;
+      delete e.videolist;
     });
 
     res.status(200).json({
@@ -204,6 +209,7 @@ router.get("/getvideolistzs", async (req, res) => {
     //进行数据处理，根据每条数据添加上代表更新至多少回
     data.forEach((e) => {
       e.updatenum = e.videolist.length;
+      delete e.videolist;
     });
     res.status(200).json({
       code: 200,
@@ -262,6 +268,14 @@ router.get("/getsearchlist", async (req, res) => {
       }
     );
 
+    //进行数据处理，根据每条数据添加上代表更新至多少回
+    data.forEach((e) => {
+      e.updatenum = e.videolist.length;
+      delete e.videolist;
+    });
+    
+
+
     res.status(200).json({
       code: 200,
       message: "ok",
@@ -304,14 +318,14 @@ router.get("/getvideo", async (req, res) => {
 //获取相关推荐
 router.get("/getcorrelation", async (req, res) => {
   //拿到视频id
-  const { videoid,pagesize=10 } = req.query;
+  const { videoid, pagesize = 10 } = req.query;
   try {
     //获取到风格数组
     const [{ classify }] = await findmongo(
       { videoid },
       {
         //隐藏字段
-        projection: { classify: 1,_id:0 },
+        projection: { classify: 1, _id: 0 },
       }
     );
     //根据风格数组来查询相关的
@@ -321,9 +335,15 @@ router.get("/getcorrelation", async (req, res) => {
         //查出这些条数
         limit: +pagesize,
         //隐藏字段
-        projection: {_id:0 },
+        projection: { _id: 0 },
       }
     );
+
+    //进行数据处理，根据每条数据添加上代表更新至多少回
+    data.forEach((e) => {
+      e.updatenum = e.videolist.length;
+      delete e.videolist;
+    });
 
     res.status(200).json({
       code: 200,
@@ -337,5 +357,66 @@ router.get("/getcorrelation", async (req, res) => {
     });
   }
 });
+
+//获取视频链接
+router.post("/geturlvideo", async (req, res) => {
+  const { videoid, serial } = req.body;
+  try {
+    //先找出这集的urlname
+    const [{ videolist }] = await findmongo({ videoid });
+    const { urlname } = videolist.find((e) => {
+      return e.serial === serial;
+    });
+
+    //进行获取url
+    let data = await getsignatureurl(urlname);
+    //转成url对象，再重新拼接成使用自定义域名
+    const URLdata = new URL(data);
+    data = process.env.OSS_CN + URLdata.pathname + URLdata.search;
+
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+});
+
+//获取收藏完整列表
+router.get("/getmfavoritelist", async (req, res) => {
+  const { arr } = req.query;
+  try {
+
+    const data = await findmongo(
+      { videoid: { $in: arr } },
+      {
+        sort: { lastupdate: -1 }, //隐藏字段
+        projection: { _id: 0 },
+      }
+    );
+
+    //进行数据处理，根据每条数据添加上代表更新至多少回
+    data.forEach((e) => {
+      e.updatenum = e.videolist.length;
+      delete e.videolist;
+    });
+
+    res.status(200).json({
+      code: 200,
+      message: "ok",
+      data,
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      code: error.code || 500,
+      message: error.message,
+    });
+  }
+})
 
 module.exports = router;

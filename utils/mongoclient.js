@@ -44,7 +44,7 @@ async function findmongo(
 }
 
 //多表联查
-async function aggregatemongo(from, field, database, datatable,match={}) {
+async function aggregatemongo(from, field, database, datatable,match={},project={_id:0},sort={_id:1}) {
   try {
     //连接数据库
     await mongo.connect();
@@ -67,12 +67,19 @@ async function aggregatemongo(from, field, database, datatable,match={}) {
         {
           $unwind: "$aggarr", // 将数组展开
         },
+        {
+          $project:project
+        },
+        {
+          $sort:sort
+        }
       ])
       .toArray();
     return ress;
   } catch (error) {
+    console.log();
     return Promise.reject({
-      code: 403,
+      code: 403 || 500,
       message: "连接数据库或多表查找语句错误" + error.message,
     });
   }
