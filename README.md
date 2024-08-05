@@ -7,5 +7,3 @@
 后台管理系统：https://github.com/burutf/videosys
 
 前台：https://github.com/burutf/videoindex
-
-在线地址：https://yfengxing,cn
